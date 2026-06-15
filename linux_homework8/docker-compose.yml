@@ -1,0 +1,24 @@
+services:
+  ollama-qwen:
+    build: .
+    container_name: ollama-qwen
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODEL=qwen3:0.6b
+
+  # ===== 选做：MCP 服务 =====
+  mcp-server:
+    build: ./mcp-server
+    container_name: mcp-server
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
+    driver: local

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>华强卖瓜 — 买瓜宇宙</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ═══ 开始画面 ═══ -->
+<div id="scr-start" class="screen active">
+  <img class="bg-full" src="/static/img/bg_start.png" alt="">
+  <div class="overlay-light"></div>
+  <div class="start-box">
+    <div class="start-logo">华强卖瓜</div>
+    <div class="start-sub">— 买瓜宇宙 · 生存挑战 —</div>
+    <input id="inp-name" class="start-input" placeholder="留下你的名号…" maxlength="12" autocomplete="off">
+    <button class="btn-main" onclick="startGame()">开 摊</button>
+    <div class="start-row">
+      <button class="btn-sm" onclick="showAchievementsStart()">成就</button>
+      <button class="btn-sm" onclick="toggleSettings()">设置</button>
+    </div>
+    <div id="start-settings" class="start-row hidden" style="margin-top:4px">
+      <button class="btn-sm" onclick="showIntro()">游戏介绍</button>
+      <button class="btn-sm" onclick="showLoadMenu()">读 档</button>
+      <button class="btn-sm" onclick="showLB()">排行</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 过渡画面 ═══ -->
+<div id="scr-transition" class="screen">
+  <img class="bg-full" src="/static/img/bg_transition.png" alt="">
+  <div class="overlay-light"></div>
+  <div class="transition-text">
+    <div class="trans-day" id="trans-day"></div>
+    <div class="trans-sub" id="trans-sub">新的一天开始了…</div>
+  </div>
+</div>
+
+<!-- ═══ 主游戏画面 ═══ -->
+<div id="scr-game" class="screen">
+  <img id="img-bg" class="bg-full" src="/static/img/bg_start.png" alt="">
+
+  <!-- 状态栏三区 -->
+  <div id="top-bar">
+    <div class="tb-left">
+      <div class="tb-item" title="第几天 — 你在瓜摊上度过的日子">
+        <span class="tb-icon icon-day"></span>
+        <span class="tb-label">第</span><span id="s-day">1</span><span class="tb-label">天</span>
+      </div>
+    </div>
+    <div class="tb-center">
+      <div class="tb-item" title="西瓜数量 (剩余库存)">
+        <span class="tb-icon icon-melon"></span><span id="s-melon">15</span>
+      </div>
+      <div class="tb-item danger" title="华强怒气 0/100 — 达到100将被华强杀死">
+        <span class="tb-icon icon-anger"></span><span id="s-anger">30</span><span class="tb-frac">/100</span>
+      </div>
+      <div class="tb-item police" title="警方关注度 0/100 — 达到90则华强被捕(胜利)">
+        <span class="tb-icon icon-police"></span><span id="s-police">5</span><span class="tb-frac">/100</span>
+      </div>
+      <div class="tb-item mind" title="心态 0/100 — 归零则精神崩溃">
+        <span class="tb-icon icon-mind"></span><span id="s-mind">60</span><span class="tb-frac">/100</span>
+      </div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-item" title="金钱 — 破产(≤-300)将无法继续经营">
+        <span class="tb-icon icon-coin"></span><span id="s-money">200</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 对话框 -->
+  <div id="dialog-box">
+    <div id="dlg-speaker"></div>
+    <div id="dlg-scene"></div>
+    <div id="dlg-dialogue"></div>
+    <div id="dlg-dayhint"></div>
+    <div id="dlg-options"></div>
+  </div>
+
+  <!-- 结果浮层 -->
+  <div id="result-overlay" class="hidden">
+    <div id="result-box">
+      <div id="result-text"></div>
+      <div id="result-changes"></div>
+      <button class="btn-main" onclick="nextDay()">继 续</button>
+    </div>
+  </div>
+
+  <!-- 底部按钮栏 -->
+  <div id="bottom-bar">
+    <button class="btn-sm" onclick="showSettings()">⚙ 设置</button>
+  </div>
+</div>
+
+<!-- ═══ 结束画面 ═══ -->
+<div id="scr-end" class="screen">
+  <img id="img-end" class="bg-full" src="/static/img/bg_lose.png" alt="">
+  <div class="overlay-light"></div>
+  <div class="end-box">
+    <div id="end-title"></div>
+    <div id="end-reason"></div>
+    <div id="end-stats"></div>
+    <button class="btn-main" onclick="restartGame()">再开一摊</button>
+    <button class="btn-sm" onclick="showLB()">排行榜</button>
+  </div>
+</div>
+
+<!-- ═══ 游戏介绍弹窗 ═══ -->
+<div id="modal-intro" class="modal hidden">
+  <div class="modal-bg" onclick="closeIntro()"></div>
+  <div class="modal-box wide">
+    <h2>— 游戏介绍 —</h2>
+    <div id="intro-content">
+      <p>加载中…</p>
+    </div>
+    <button class="btn-sm" onclick="closeIntro()">知道了</button>
+  </div>
+</div>
+
+<!-- ═══ 历史记录弹窗 ═══ -->
+<div id="modal-history" class="modal hidden">
+  <div class="modal-bg" onclick="closeHistory()"></div>
+  <div class="modal-box wide">
+    <h2>— 过往记录 —</h2>
+    <div id="history-content"></div>
+    <button class="btn-sm" onclick="closeHistory()">关闭</button>
+  </div>
+</div>
+
+<!-- ═══ 读档弹窗 ═══ -->
+<div id="modal-load" class="modal hidden">
+  <div class="modal-bg" onclick="closeLoadMenu()"></div>
+  <div class="modal-box">
+    <h2>— 读 档 —</h2>
+    <div id="load-list"></div>
+    <button class="btn-sm" onclick="closeLoadMenu()">关闭</button>
+  </div>
+</div>
+
+<!-- ═══ 排行榜弹窗 ═══ -->
+<div id="modal-lb" class="modal hidden">
+  <div class="modal-bg" onclick="closeLB()"></div>
+  <div class="modal-box">
+    <h2>— 买瓜排行榜 —</h2>
+    <div id="lb-list"></div>
+    <button class="btn-sm" onclick="closeLB()">关闭</button>
+  </div>
+</div>
+
+<!-- ═══ 存档确认弹窗 ═══ -->
+<div id="modal-save" class="modal hidden">
+  <div class="modal-bg" onclick="closeSaveMenu()"></div>
+  <div class="modal-box">
+    <h2>— 选择存档槽位 —</h2>
+    <div id="save-slots"></div>
+    <button class="btn-sm" onclick="closeSaveMenu()">取消</button>
+  </div>
+</div>
+
+<!-- ═══ 成就弹窗 ═══ -->
+<div id="modal-achv" class="modal hidden">
+  <div class="modal-bg" onclick="closeAchievements()"></div>
+  <div class="modal-box wide">
+    <h2>— 成 就 —</h2>
+    <div id="achv-list"></div>
+    <button class="btn-sm" onclick="closeAchievements()">关闭</button>
+  </div>
+</div>
+
+<!-- ═══ 设置弹窗 ═══ -->
+<div id="modal-settings" class="modal hidden">
+  <div class="modal-bg" onclick="closeSettings()"></div>
+  <div class="modal-box">
+    <h2>— 设 置 —</h2>
+    <div id="settings-menu-list">
+      <button class="settings-menu-btn" onclick="showIntro();closeSettings()">📖 游戏介绍</button>
+      <button class="settings-menu-btn" onclick="showHistory();closeSettings()">📜 过往记录</button>
+      <button class="settings-menu-btn" onclick="showAchievements();closeSettings()">🏆 成 就</button>
+      <button class="settings-menu-btn" onclick="doSave();closeSettings()">💾 存 档</button>
+      <button class="settings-menu-btn" onclick="showLB();closeSettings()">🏅 排行榜</button>
+      <button class="settings-menu-btn danger" onclick="closeSettings();doQuit()">🚪 收 摊</button>
+    </div>
+    <button class="btn-sm" onclick="closeSettings()" style="margin-top:12px;width:100%">关闭</button>
+  </div>
+</div>
+
+<!-- 音频 -->
+<audio id="audio-transition" src="/static/audio/transition.mp3" preload="auto"></audio>
+<audio id="audio-win" src="/static/audio/win.mp3" preload="auto"></audio>
+<audio id="audio-lose" src="/static/audio/lose.mp3" preload="auto"></audio>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

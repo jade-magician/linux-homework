@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: huaqiang-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: huaqiang_game
+      POSTGRES_USER: gameuser
+      POSTGRES_PASSWORD: gamepass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gameuser -d huaqiang_game"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: huaqiang-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://gameuser:gamepass@db:5432/huaqiang_game
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
